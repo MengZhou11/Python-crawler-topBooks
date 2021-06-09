@@ -10,14 +10,36 @@ import sqlite3  #进行sqllite操作数据库
 
 def main():
     # getData(baseurl)
-    # savePath = ".\\top250.xls"  #当前文件
     # saveData(savePath)
     # askURL("https://movie.douban.com/top250?start=")
-
+    path = "top250Movies.xls"
     baseurl = "https://movie.douban.com/top250?start="
-    # 1.爬取网页
+    #爬取网页
     datalist = getData(baseurl)
+    saveData(datalist,path)
     #影片详情链接
+
+#得到指定一个url网页内容
+def askURL(url):
+    head = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36"
+    }  #告诉douban网站 我不是爬虫  模拟浏览器头部信息 伪装
+
+    request = urllib.request.Request(url=url, headers=head)
+    html=""
+    try:
+        response = urllib.request.urlopen(request)
+        html = response.read().decode("utf-8")
+        #print(html)
+    except urllib.error.URLError as e:
+        if hasattr(e, "code"):
+            print(e.code)
+        if hasattr(e, "reason"):
+            print(e.reason)
+
+    return html
+
+
 
 
 #爬取网页
@@ -77,33 +99,24 @@ def getData(baseurl):
             data.append(bd.strip())  #strip是用来去掉空格
             #把一个data放进datalist里面
             datalist.append(data)
-    print(datalist)
+    #print(datalist)
     return datalist
 
-#得到指定一个url网页内容
-def askURL(url):
-    head = {
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36"
-    }  #告诉douban网站 我不是爬虫  模拟浏览器头部信息 伪装
 
-    request = urllib.request.Request(url=url, headers=head)
-    html=""
-    try:
-        response = urllib.request.urlopen(request)
-        html = response.read().decode("utf-8")
-        #print(html)
-    except urllib.error.URLError as e:
-        if hasattr(e, "code"):
-            print(e.code)
-        if hasattr(e, "reason"):
-            print(e.reason)
-
-    return html
-
-
-#3.保存数据
-def saveData(savePath):
+#3.保存数据excel
+def saveData(datalist,savePath):
     print("saving..")
+    book = xlwt.Workbook(encoding="utf-8", style_compression=0)
+    sheet=book.add_sheet('top250movies',cell_overwrite_ok=True)
+    col = ("Link","Image","Movie title","movie title2", "Rating","Num of Rating","Introduction","More info")
+    for i in range(0,8):
+        sheet.write(0,i,col[i])
+    for i in range(0,250):
+        print(i)
+        data=datalist[i]
+        for j in range(0,8):
+            sheet.write(i+1, j, data[j])
+    book.save(savePath)
 
 
 if __name__ == "__main__":   #执行程序
