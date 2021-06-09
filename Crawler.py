@@ -9,26 +9,27 @@ import xlwt  #进行Excel操作
 import sqlite3  #进行sqllite操作数据库
 
 def main():
-    baseurl = "https://book.douban.com/top250"
+    baseurl = "https://movie.douban.com/top250?start="
     #1.爬取网页
     datalist = getData(baseurl)
+    getData(baseurl)
     savePath = ".\\top250.xls"  #当前文件
     saveData(savePath)
-
-    askURL("https://book.douban.com/top250")
+    #askURL("https://book.douban.com/top250?start=")
 
 #爬取网页
 def getData(baseurl):
     datalist = []
     # 左闭右开 从0到249
-    for i in range(0,250)：
+    for i in range(0,1):
         url = baseurl + str(i*25)
         html = askURL(url)   #保存获取到的网页内容
         # 2.逐一解析数据
+        soup = BeautifulSoup(html, "html.parser")
+        for item in soup.find_all('div',class_="item"):  #查到找的东西放到一个list里面 class需要加下划线
+            print(item)
 
-
-
-    #return datalist
+    return datalist
 
 #得到指定一个url网页内容
 def askURL(url):
@@ -41,7 +42,7 @@ def askURL(url):
     try:
         response = urllib.request.urlopen(request)
         html = response.read().decode("utf-8")
-        print(html)
+        #print(html)
     except urllib.error.URLError as e:
         if hasattr(e, "code"):
             print(e.code)
