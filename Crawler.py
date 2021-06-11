@@ -18,7 +18,7 @@ def main():
     # saveData(datalist,path)
     #3b.保存数据到database
     dbPath = "movie.db"
-    saveData2DB(datalist,dbPath)
+    saveData2DB(datalist, dbPath)
 
 
 #1.得到指定一个url网页内容 进行伪装设置
@@ -107,13 +107,15 @@ def saveData(datalist,savePath):
     print("saving..")
     book = xlwt.Workbook(encoding="utf-8", style_compression=0)
     sheet=book.add_sheet('top250movies',cell_overwrite_ok=True)
+    #设定column名字再存到excel中表格第一行
     col = ("Link","Image","Movie title","movie title2", "Rating","Num of Rating","Introduction","More info")
     for i in range(0,8):
         sheet.write(0,i,col[i])
+    #从第二行开始 放入Data
     for i in range(0,250):
         data=datalist[i]
         for j in range(0,8):
-            sheet.write(i+1, j, data[j])
+            sheet.write(i+1, j, data[j])  #横竖坐标
     book.save(savePath)
 
 #3a.创建database
@@ -140,23 +142,22 @@ def init_db(dbPath):
 
 #3b.保存数据到db
 def saveData2DB(datalist, savePath):
+    # 已经创建一次就可以:
     #init_db(savePath)
     conn = sqlite3.connect(savePath)
     cursor = conn.cursor()
 
     for data in datalist:
         for index in range(len(data)):
-            if index==4 or index==5:
+            if index == 4 or index == 5:
                 continue
             data[index] = '"'+data[index]+'"'
-        sql = '''insert into top250movie(
-        movie_Link,pic_Link,cn_Name,en_Name,score,rating,introduction,more_Info)
-            values(%s) '''%",".join(data)
+        sql = '''insert into top250movie(movie_Link,pic_Link,cn_Name,en_Name,score,rating,introduction,more_Info)
+            values(%s) ''' % ",".join(data)
         cursor.execute(sql)
         conn.commit()
     cursor.close()
     conn.close()
-    print("SAVED")
 
 
 #执行主程序
